@@ -1,0 +1,154 @@
+-- DROP SCHEMA public;
+
+CREATE SCHEMA public AUTHORIZATION pg_database_owner;
+
+-- DROP SEQUENCE public.user_application_id_seq;
+
+CREATE SEQUENCE public.user_application_id_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647
+	START 1
+	CACHE 1
+	NO CYCLE;-- public.equipment определение
+
+-- Drop table
+
+-- DROP TABLE public.equipment;
+
+CREATE TABLE public.equipment (
+	id int4 NOT NULL,
+	"name" varchar(255) NULL,
+	CONSTRAINT equipment_pkey PRIMARY KEY (id)
+);
+
+
+-- public.priority определение
+
+-- Drop table
+
+-- DROP TABLE public.priority;
+
+CREATE TABLE public.priority (
+	id int4 NOT NULL,
+	"name" varchar(255) NULL,
+	CONSTRAINT priority_pkey PRIMARY KEY (id)
+);
+
+
+-- public.roles определение
+
+-- Drop table
+
+-- DROP TABLE public.roles;
+
+CREATE TABLE public.roles (
+	role_id int4 NOT NULL,
+	"name" varchar(255) NULL,
+	CONSTRAINT roles_pkey PRIMARY KEY (role_id)
+);
+
+
+-- public.status определение
+
+-- Drop table
+
+-- DROP TABLE public.status;
+
+CREATE TABLE public.status (
+	status_id int4 NOT NULL,
+	"name" varchar(255) NULL,
+	CONSTRAINT status_pkey PRIMARY KEY (status_id)
+);
+
+
+-- public."type" определение
+
+-- Drop table
+
+-- DROP TABLE public."type";
+
+CREATE TABLE public."type" (
+	id int4 NOT NULL,
+	"name" varchar(255) NULL,
+	CONSTRAINT type_pkey PRIMARY KEY (id)
+);
+
+
+-- public.users определение
+
+-- Drop table
+
+-- DROP TABLE public.users;
+
+CREATE TABLE public.users (
+	user_id int4 NOT NULL,
+	"name" varchar(255) NULL,
+	login varchar(255) NULL,
+	"password" varchar(255) NULL,
+	role_id int4 NULL,
+	CONSTRAINT users_pkey PRIMARY KEY (user_id),
+	CONSTRAINT users_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(role_id) ON DELETE CASCADE
+);
+
+
+-- public.applications определение
+
+-- Drop table
+
+-- DROP TABLE public.applications;
+
+CREATE TABLE public.applications (
+	id int4 NOT NULL,
+	add_date timestamp NULL,
+	end_date timestamp NULL,
+	description varchar(255) NULL,
+	executor_id int4 NULL,
+	user_id int4 NULL,
+	priority_id int4 NULL,
+	status_id int4 NULL,
+	"result" varchar(255) NULL,
+	equipment_id int4 NULL,
+	type_id int4 NULL,
+	CONSTRAINT applications_pkey PRIMARY KEY (id),
+	CONSTRAINT applications_executor_id_fkey FOREIGN KEY (executor_id) REFERENCES public.users(user_id) ON DELETE CASCADE,
+	CONSTRAINT applications_id_fkey FOREIGN KEY (id) REFERENCES public.priority(id),
+	CONSTRAINT applications_status_id_fkey FOREIGN KEY (status_id) REFERENCES public.status(status_id) ON DELETE CASCADE,
+	CONSTRAINT applications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON DELETE CASCADE,
+	CONSTRAINT equipment_id FOREIGN KEY (equipment_id) REFERENCES public.equipment(id),
+	CONSTRAINT type_id FOREIGN KEY (type_id) REFERENCES public."type"(id)
+);
+
+
+-- public."comment" определение
+
+-- Drop table
+
+-- DROP TABLE public."comment";
+
+CREATE TABLE public."comment" (
+	id int4 NOT NULL,
+	"name" varchar(255) NULL,
+	description varchar(255) NULL,
+	user_id int4 NULL,
+	applic_id int4 NULL,
+	CONSTRAINT comment_pkey PRIMARY KEY (id),
+	CONSTRAINT comment_applic_id_fkey FOREIGN KEY (applic_id) REFERENCES public.applications(id) ON DELETE CASCADE,
+	CONSTRAINT comment_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON DELETE CASCADE
+);
+
+
+-- public.user_application определение
+
+-- Drop table
+
+-- DROP TABLE public.user_application;
+
+CREATE TABLE public.user_application (
+	id serial4 NOT NULL,
+	user_id int4 NULL,
+	applic_id int4 NULL,
+	CONSTRAINT user_application_pk PRIMARY KEY (id),
+	CONSTRAINT user_application_applications_fk FOREIGN KEY (applic_id) REFERENCES public.applications(id),
+	CONSTRAINT user_application_users_fk FOREIGN KEY (user_id) REFERENCES public.users(user_id)
+);
